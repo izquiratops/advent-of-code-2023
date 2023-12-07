@@ -1,0 +1,4 @@
+go 1.21.5
+
+use ./day-01/puzzleA
+use ./day-01/puzzleB
