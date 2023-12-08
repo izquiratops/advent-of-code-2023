@@ -1,4 +1,5 @@
 go 1.21.5
 
-use ./day-01/puzzleA
-use ./day-01/puzzleB
+use ./day01A
+use ./day01B
+use ./day08A
