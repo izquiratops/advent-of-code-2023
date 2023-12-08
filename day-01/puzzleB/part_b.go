@@ -4,12 +4,12 @@ import (
 	"container/list"
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 )
 
 var (
+	words     = []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 	numberMap = map[string]string{
 		"one":   "1",
 		"two":   "2",
@@ -33,22 +33,14 @@ func main() {
 	inputString := string(input)
 	inputLines := strings.Split(inputString, "\n")
 
-	pattern := "(?=(one|two|three|four|five|six|seven|eight|nine|[1-9]))"
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		panic(err)
-	}
-
 	calibrationValues := list.New()
 	for index, inputLine := range inputLines {
-		matchedList := re.FindAllString(inputLine, -1)
-		if len(matchedList) == 0 {
-			fmt.Println(index, "No matches found")
-			continue
-		}
+		matches := findValidMatch(inputLine)
+		fmt.Println(index, matches)
 
-		calibrationValue := getCalibrationValue(matchedList)
+		calibrationValue := getCalibrationValue(matches)
 		fmt.Println(index, calibrationValue)
+
 		calibrationValues.PushBack(calibrationValue)
 	}
 
@@ -59,6 +51,20 @@ func main() {
 	}
 
 	fmt.Println("Day 1, Part B: ", total)
+}
+
+func findValidMatch(inputLine string) []string {
+	var matches []string
+	for i := 0; i < len(inputLine); i++ {
+		for _, word := range words {
+			if strings.HasPrefix(inputLine[i:], word) {
+				fmt.Println("Found match: ", word)
+				matches = append(matches, word)
+			}
+		}
+	}
+
+	return matches
 }
 
 func getCalibrationValue(matchedList []string) int {
