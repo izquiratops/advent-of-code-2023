@@ -3,3 +3,4 @@ go 1.21.5
 use ./day01A
 use ./day01B
 use ./day08A
+use ./day08B
