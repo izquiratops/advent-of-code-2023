@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -10,52 +11,63 @@ func main() {
 	input := ReadInput("test_a.txt")
 	histories := ParseInput(input)
 
+	var nextValues []int
 	for _, history := range histories {
-		prevHistory, nextHistory := SettingNextPrediction(nil, history)
-		predictionIters := 0
+		// Sequence index
+		i := 0
+		// Sequence of differences
+		sequences := [][]int{history}
+		// The next sequence for each prediction
+		nextSequence := make([]int, len(history)-1)
 
-	predictionLoop:
+		// Prediction loops
 		for {
-			for i := 0; i < len(prevHistory)-1; i++ {
-				nextHistory[i] = prevHistory[i+1] - prevHistory[i]
+			for j := 0; j < len(sequences[i])-1; j++ {
+				nextSequence[j] = sequences[i][j+1] - sequences[i][j]
 			}
+
+			sequences = append(sequences, nextSequence)
 
 			// Check if we're done
 			sum := 0
-			for _, stepValue := range nextHistory {
+			for _, stepValue := range nextSequence {
 				sum += stepValue
 			}
 
-			// Moving on to the next prediction or breaking the loop if every step is 0
+			i++
 			if sum == 0 {
-				break predictionLoop
+				// Adding a 0 to the next sequence before extrapolating
+				sequences[i] = append(sequences[i], 0)
+				break
 			} else {
-				prevHistory, nextHistory = SettingNextPrediction(prevHistory, nextHistory)
-				predictionIters++
+				// Setting an empty new array with a known lenght
+				nextSequence = make([]int, len(sequences[i])-1)
 			}
 		}
 
-		prevHistory = append(prevHistory, prevHistory[len(prevHistory)-1])
-		prevHistory, nextHistory = SettingNextExtrapolation(nil, prevHistory)
-		extrapolationIters := 0
-
-	extrapolationLoop:
+		// Extrapolation loops
 		for {
-			value := prevHistory[0]
-			for j := 0; j < len(prevHistory)-1; j++ {
-				value += prevHistory[j+1]
-				nextHistory[j] = value
-			}
+			currentSequence := sequences[i][len(sequences[i])-1]
+			prevSequence := sequences[i-1][len(sequences[i-1])-1]
+			sequences[i-1] = append(sequences[i-1], currentSequence+prevSequence)
 
-			// Checking if we have reached the desired iteration
-			if extrapolationIters == predictionIters {
-				break extrapolationLoop
+			if i == 1 {
+				break
 			} else {
-				prevHistory, nextHistory = SettingNextExtrapolation(prevHistory, nextHistory)
-				extrapolationIters++
+				i--
 			}
 		}
+
+		nextValue := sequences[0][len(sequences[0])-1]
+		nextValues = append(nextValues, nextValue)
 	}
+
+	result := 0
+	for _, curr := range nextValues {
+		result += curr
+	}
+
+	fmt.Println("Result 🎊", result)
 }
 
 func ReadInput(path string) string {
@@ -88,18 +100,4 @@ func ParseInput(input string) [][]int {
 	}
 
 	return histories
-}
-
-func SettingNextPrediction(prev []int, next []int) ([]int, []int) {
-	prev = make([]int, len(next))
-	copy(prev, next)
-	next = make([]int, len(prev)-1)
-	return prev, next
-}
-
-func SettingNextExtrapolation(prev []int, next []int) ([]int, []int) {
-	prev = make([]int, len(next))
-	copy(prev, next)
-	next = make([]int, len(prev)+1)
-	return prev, next
 }
