@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	input := ReadInput("test_a.txt")
+	input := ReadInput("input_a.txt")
 	histories := ParseInput(input)
 
 	var nextValues []int
@@ -31,7 +31,11 @@ func main() {
 			// Check if we're done
 			sum := 0
 			for _, stepValue := range nextSequence {
-				sum += stepValue
+				if stepValue < 0 {
+					sum -= stepValue
+				} else {
+					sum += stepValue
+				}
 			}
 
 			i++
